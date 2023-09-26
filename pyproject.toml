@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "dtc-gnn"
+version = "0.1.0"
+description = ""
+authors = ["Mateusz Papierz <m2papierz@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+hydra-core = "1.3.2"
+torchmetrics = "1.1.0"
+torch = "2.0.0"
+pytorch-lightning = "2.0.4"
+tensorboard = "2.14.0"
+perlin-numpy = {git = "https://github.com/pvigier/perlin-numpy"}
+dgl = "1.1.2"
+ogb = "1.3.6"
+scipy = "1.9.3"
+networkx = "*"
+qecsim = "1.0b9"
+pymatching = "2.1.0"
+matplotlib = "^3.7.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dev-dependencies]
+poethepoet = "^0.20.0"
+
+[tool.poe.tasks]
+force-pt-cuda11 = "python -m pip install torch==2.0.0+cu117 -f https://download.pytorch.org/whl/torch_stable.html"
+force-dgl-cuda11 = "python -m pip install dgl==1.1.2+cu117 -f https://data.dgl.ai/wheels/cu117/repo.html"
