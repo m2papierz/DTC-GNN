@@ -9,6 +9,7 @@ from typing import List, Tuple, Union
 from omegaconf import DictConfig
 from pathlib import Path
 
+from qecsim.paulitools import bsp
 from dtc_gnn.utlis import init_directory
 from qecsim.models.toric import ToricCode
 from qecsim.models.generic import DepolarizingErrorModel
@@ -46,7 +47,7 @@ def generate_single_code_data(
     x_data, y_data = [], []
     data_size = int(n_samples / len(error_probs))
     for p in error_probs:
-        graphs_data, errors_data = [], []
+        graphs, labels = [], []
 
         desc = f"Generating data for code_dist={code_dist} and error_prob={p}"
         for _ in trange(data_size, desc=desc, file=sys.stdout):
@@ -56,13 +57,13 @@ def generate_single_code_data(
             while not np.any(errors) or not np.any(syndrome):
                 errors = error_model.generate(
                     code=toric_code, probability=p)
-                syndrome = toric_code.stabilizers @ errors % 2
+                syndrome = bsp(errors, toric_code.stabilizers.T)
 
-            graphs_data.append(to_graph_transform(syndrome=syndrome))
-            errors_data.append(toric_code.logicals @ errors % 2)
+            graphs.append(to_graph_transform(syndrome=syndrome))
+            labels.append(bsp(errors, toric_code.logicals.T))
 
-        x_data.append(np.array(graphs_data, dtype=object))
-        y_data.append(np.array(errors_data, dtype=np.float64))
+        x_data.append(np.array(graphs, dtype=object))
+        y_data.append(np.array(labels, dtype=np.float64))
 
     code_x_data = np.concatenate(x_data, axis=0)
     code_y_data = np.concatenate(y_data, axis=0)
