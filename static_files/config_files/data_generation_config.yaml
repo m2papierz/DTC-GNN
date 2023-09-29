@@ -1,4 +1,4 @@
-save_dirs:
+data_dirs:
   train: "data/train"
   val: "data/val"
 error_probs:
@@ -12,5 +12,5 @@ code_distances:
   - 5
   - 7
   - 9
-n_samples: 25000
+n_samples: 250000
 split_ratio: 0.8

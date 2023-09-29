@@ -11,7 +11,7 @@ from omegaconf import DictConfig
 from pathlib import Path
 
 from qecsim.paulitools import bsp
-from dtc_gnn.utlis import init_directory
+from dtc_gnn.utlis import data_dirs_status
 from qecsim.models.toric import ToricCode
 from qecsim.models.generic import DepolarizingErrorModel
 from dtc_gnn.data_management.data_transforms import SyndromeToGraphTransform
@@ -86,7 +86,7 @@ def split_and_save_datasets(
     train_ind, val_ind = get_split_indices(
         data_len=len(x_data), split_ratio=split_ratio)
 
-    print("Splitting and saving data...")
+    print("Splitting and saving datasets...")
     for k, dir_ in save_dirs.items():
         if k == 'train':
             split_ind = train_ind
@@ -121,28 +121,27 @@ def split_and_save_datasets(
     version_base=None
 )
 def main(config: DictConfig):
-    save_dirs = {k: Path(sys.path[1]) / v for k, v in config.save_dirs.items()}
-    for dir_ in save_dirs.values():
-        init_directory(dir_)
+    data_dirs = {k: Path(sys.path[1]) / v for k, v in config.data_dirs.items()}
 
-    # Size of the code distances ensemble dataset
-    ensemble_size = int(config.n_samples / len(config.code_distances))
+    if data_dirs_status(dir_paths=list(data_dirs.values())):
+        # Size of the code distances ensemble dataset
+        ensemble_size = int(config.n_samples / len(config.code_distances))
 
-    # Create dataset for as single code distance
-    for code_dist in config.code_distances:
-        data = generate_single_code_data(
-            code_dist=code_dist,
-            error_probs=config.error_probs,
-            n_samples=config.n_samples
-        )
+        # Create dataset for as single code distance
+        for code_dist in config.code_distances:
+            data = generate_single_code_data(
+                code_dist=code_dist,
+                error_probs=config.error_probs,
+                n_samples=config.n_samples
+            )
 
-        split_and_save_datasets(
-            code_data=data,
-            split_ratio=config.split_ratio,
-            ensemble_size=ensemble_size,
-            code_dist=code_dist,
-            save_dirs=save_dirs
-        )
+            split_and_save_datasets(
+                code_data=data,
+                split_ratio=config.split_ratio,
+                ensemble_size=ensemble_size,
+                code_dist=code_dist,
+                save_dirs=data_dirs
+            )
 
 
 if __name__ == "__main__":
