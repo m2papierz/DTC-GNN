@@ -35,3 +35,4 @@ def data_dirs_status(
     else:
         for dir_ in dir_paths:
             os.mkdir(dir_)
+        return True

@@ -1,16 +1,21 @@
 data_dirs:
   train: "data/train"
   val: "data/val"
-error_probs:
-  - 0.015
-  - 0.055
-  - 0.075
-  - 0.105
-  - 0.115
+  test: "data/test"
+
+error_model:
+  _target_: dtc_gnn.error_models.DepolarizingErrorModel
+
+graph_transform:
+  _target_: dtc_gnn.data_management.data_transforms.SyndromeToGraphTransform
+  edges_constraint: 5
+
 code_distances:
   - 3
   - 5
   - 7
   - 9
-n_samples: 250000
+
+n_samples: 300000
 split_ratio: 0.8
+error_prob: 0.115
