@@ -50,13 +50,14 @@ def generate_single_code_data(
     graphs = np.empty(shape=n_samples, dtype=object)
     labels = np.empty(shape=(n_samples, qubits_n), dtype=np.float32)
     for idx in trange(n_samples, file=sys.stdout, desc=desc):
-        errors = []
-        while not np.any(errors):
+        errors, syndrome = [], []
+        while not np.any(errors) or not np.any(syndrome):
             errors = error_model.generate(
                 shape=toric_code.n_k_d[0], probability=error_prob)
+            syndrome = bsp(errors, toric_code.stabilizers.T)
 
         graph = graph_transform(
-            stab_code=toric_code, syndrome=bsp(errors, toric_code.stabilizers.T))
+            stab_code=toric_code, syndrome=syndrome)
         labels[idx, :] = bsp(errors, toric_code.logicals.T)
         graphs[idx] = graph
 

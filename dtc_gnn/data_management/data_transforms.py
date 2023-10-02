@@ -1,11 +1,11 @@
 import dgl
 import torch
-import numpy as np
 import networkx as nx
 import scipy.sparse as sp
 
-from typing import List, Union
+from typing import List
 from itertools import combinations
+from qecsim.models.toric import ToricCode
 
 from dtc_gnn.data_management.graph_transform_utils import GraphNode
 from dtc_gnn.data_management.graph_transform_utils import GraphEdge
@@ -23,12 +23,11 @@ class GraphDataToTensorTransform:
 
 class SyndromeToGraphTransform:
     def __init__(self, edges_constraint: int = 5):
-        self._graph_s = None
         self._max_edges = edges_constraint
 
     def _syndrome_to_graph(
             self,
-            stab_code,
+            stab_code: ToricCode,
             syndrome: List[int]
     ) -> None:
         """
@@ -70,21 +69,20 @@ class SyndromeToGraphTransform:
 
         # Add node and edge features
         dgl_graph.ndata['feat'] = torch.tensor(
-            list(nx.get_node_attributes(self._graph_s, name='feat').values()))
+            list(nx.get_node_attributes(self._graph_s, name='feat').values()),
+            dtype=torch.float32)
         reshaped_weight = dgl_graph.edata['weight'].clone().detach().view(-1, 1)
-        dgl_graph.edata['weight'] = reshaped_weight
+        dgl_graph.edata['weight'] = reshaped_weight.to(torch.float32)
         dgl_graph = dgl.add_self_loop(dgl_graph)
 
         return dgl_graph
 
     def __call__(
             self,
-            stab_code,
+            stab_code: ToricCode,
             syndrome: List[int]
-    ) -> Union[dgl.DGLGraph, None]:
-        if np.any(syndrome):
-            self._syndrome_to_graph(
-                stab_code=stab_code, syndrome=syndrome)
-            dgl_graph = self._convert_nx_graph_to_dgl()
-            return dgl_graph
-        return self._graph_s
+    ) -> dgl.DGLGraph:
+        self._syndrome_to_graph(
+            stab_code=stab_code, syndrome=syndrome)
+        dgl_graph = self._convert_nx_graph_to_dgl()
+        return dgl_graph
