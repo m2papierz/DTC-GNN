@@ -4,13 +4,13 @@ import random
 import os.path
 import path_init
 import numpy as np
+import qecsim.paulitools as pt
 
 from tqdm import trange
 from typing import List, Tuple, Union
 from omegaconf import DictConfig
 from pathlib import Path
 
-from qecsim.paulitools import bsp
 from dtc_gnn.utlis import data_dirs_status
 from qecsim.models.toric import ToricCode
 
@@ -46,20 +46,18 @@ def generate_single_code_data(
     desc = f"Generating data for code_dist={code_dist}"
     toric_code = ToricCode(rows=code_dist, columns=code_dist)
 
-    qubits_n = toric_code.logicals.shape[0]
     graphs = np.empty(shape=n_samples, dtype=object)
-    labels = np.empty(shape=(n_samples, qubits_n), dtype=np.float32)
+    labels = np.empty(shape=n_samples, dtype=object)
     for idx in trange(n_samples, file=sys.stdout, desc=desc):
         errors, syndrome = [], []
         while not np.any(errors) or not np.any(syndrome):
             errors = error_model.generate(
                 shape=toric_code.n_k_d[0], probability=error_prob)
-            syndrome = bsp(errors, toric_code.stabilizers.T)
+            syndrome = pt.bsp(errors, toric_code.stabilizers.T)
 
-        graph = graph_transform(
-            stab_code=toric_code, syndrome=syndrome)
-        labels[idx, :] = bsp(errors, toric_code.logicals.T)
-        graphs[idx] = graph
+        graph = graph_transform(stab_code=toric_code, syndrome=syndrome)
+        logical_error = pt.bsf_to_pauli(pt.bsp(errors, toric_code.logicals.T))
+        labels[idx], graphs[idx] = logical_error, graph
 
     return graphs, labels
 
