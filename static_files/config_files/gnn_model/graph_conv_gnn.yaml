@@ -1,0 +1,21 @@
+_target_: dtc_gnn.deep_decoding.lightning_module.GNNLightningModule
+
+torch_module:
+  _target_: dtc_gnn.deep_decoding.models.GraphConvGNN.GraphConvGNN
+  n_h_dim: 256
+  layers_num: 1
+  dropout_rate: 0.2
+
+loss_function:
+  _target_: torch.nn.CrossEntropyLoss
+
+learning_rate: 0.003
+
+reduce_lr_patience: 12
+
+train_metrics:
+  - _target_: torchmetrics.classification.BinaryAccuracy
+
+val_metrics:
+  - _target_: dtc_gnn.deep_decoding.losses.LogCoshLoss
+  - _target_: torchmetrics.classification.BinaryAccuracy
