@@ -76,15 +76,12 @@ def split_and_save_datasets(
     data_indexes = list(range(len(x_data)))
     train_idx, val_idx = random_split(
         input_list=data_indexes, split_ratio=split_ratio)
-    val_idx, test_idx = random_split(
-        input_list=val_idx, split_ratio=0.5)
 
     ens_size_train = int(split_ratio * ensemble_size)
     ens_size_val = int(np.ceil((1.0 - split_ratio) * ensemble_size))
     split_dir = {
         "train": [train_idx, ens_size_train],
-        "val": [val_idx, ens_size_val],
-        "test": [test_idx, ens_size_val]
+        "val": [val_idx, ens_size_val]
     }
 
     print("Splitting and saving datasets...")
