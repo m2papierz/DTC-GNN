@@ -11,7 +11,7 @@ error_model:
   _target_: dtc_gnn.error_models.DepolarizingErrorModel
 
 graph_transform:
-  _target_: dtc_gnn.data_management.data_transforms.SyndromeToGraphTransform
+  _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
   edges_constraint: 5
 
 code_distances:

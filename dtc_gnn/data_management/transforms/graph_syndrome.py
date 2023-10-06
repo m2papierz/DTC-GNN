@@ -7,21 +7,11 @@ from typing import List
 from itertools import combinations
 from qecsim.models.toric import ToricCode
 
-from dtc_gnn.data_management.graph_transform_utils import GraphNode
-from dtc_gnn.data_management.graph_transform_utils import GraphEdge
+from dtc_gnn.data_management.graph_utils import GraphNode
+from dtc_gnn.data_management.graph_utils import GraphEdge
 
 
-class GraphDataToTensorTransform:
-    def __call__(
-            self,
-            g: dgl.DGLGraph
-    ) -> dgl.DGLGraph:
-        g.ndata["feat"] = g.ndata["feat"].to(torch.float32)
-        g.edata["weight"] = g.edata["weight"].to(torch.float32)
-        return g
-
-
-class SyndromeToGraphTransform:
+class GraphSyndromeTransform:
     def __init__(self, edges_constraint: int = 5):
         self._max_edges = edges_constraint
 
