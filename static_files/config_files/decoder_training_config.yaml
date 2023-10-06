@@ -3,18 +3,17 @@ defaults:
   - gnn_model: graph_conv_gnn.yaml
 
 data_module:
-  _target_: dtc_gnn.data_management.data_modules.GraphDataModule
+  _target_: dtc_gnn.data_management.modules.graph_data_module.GraphDataModule
   dataset:
     _target_: hydra.utils.get_class
-    path: dtc_gnn.data_management.data_modules.GraphDataset
+    path: dtc_gnn.data_management.modules.graph_dataset.GraphDataset
   data_train_dir: "data/train"
   data_val_dir: "data/val"
-  data_test_dir: "data/test"
   code_dist: -1
   batch_size: 512
 
 trainer:
-  max_epochs: 1
+  max_epochs: 800
   callbacks:
     monitor: val_loss
     mode: min

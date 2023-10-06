@@ -7,7 +7,7 @@ torch_module:
   dropout_rate: 0.2
 
 loss_function:
-  _target_: torch.nn.CrossEntropyLoss
+  _target_: dtc_gnn.deep_decoding.loss_functions.LogCoshLoss
 
 learning_rate: 0.003
 
@@ -17,5 +17,4 @@ train_metrics:
   - _target_: torchmetrics.classification.BinaryAccuracy
 
 val_metrics:
-  - _target_: dtc_gnn.deep_decoding.losses.LogCoshLoss
   - _target_: torchmetrics.classification.BinaryAccuracy

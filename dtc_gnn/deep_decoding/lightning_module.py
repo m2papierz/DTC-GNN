@@ -56,41 +56,21 @@ class GNNLightningModule(pl.LightningModule):
 
         loss_q1 = self._loss_function(pred_q1, y1)
         loss_q2 = self._loss_function(pred_q2, y2)
-        loss = (loss_q1 + loss_q2) / 2
+        step_loss = (loss_q1 + loss_q2) / 2
 
-        return loss, pred_q1, pred_q2
+        return step_loss
 
     def training_step(self, batch, batch_idx):
-        train_loss, _, _ = self._shared_step(batch)
-        self.log("train_loss", train_loss, on_step=False, on_epoch=True, prog_bar=True)
+        train_loss = self._shared_step(batch)
+        self.log(
+            "train_loss", train_loss,
+            on_step=False, on_epoch=True, prog_bar=True
+        )
         return train_loss
 
     def validation_step(self, batch, batch_idx):
-        y1, y2 = self._unpack_labels(batch[1])
-        val_loss, pred1, pred2 = self._shared_step(batch)
-
-        self.log("val_loss", val_loss, on_step=False, on_epoch=True, prog_bar=True)
-        for eval_data in [("q1", pred1, y1), ("q2", pred2, y2)]:
-            for metric_elem in self._val_metrics:
-                metric_elem.to(self.device)
-                self.log(
-                    f"val_{eval_data[0]}_" + metric_elem.__class__.__name__,
-                    metric_elem(eval_data[1], eval_data[2]),
-                    on_epoch=True,
-                    prog_bar=False,
-                )
-
-    def test_step(self, batch, batch_idx):
-        y1, y2 = self._unpack_labels(batch[1])
-        test_loss, pred1, pred2 = self._shared_step(batch)
-
-        self.log("test_loss", test_loss, on_step=False, on_epoch=True, prog_bar=True)
-        for eval_data in [("q1", pred1, y1), ("q2", pred2, y2)]:
-            for metric_elem in self._val_metrics:
-                metric_elem.to(self.device)
-                self.log(
-                    f"val_{eval_data[0]}_" + metric_elem.__class__.__name__,
-                    metric_elem(eval_data[1], eval_data[2]),
-                    on_epoch=True,
-                    prog_bar=False,
-                )
+        val_loss = self._shared_step(batch)
+        self.log(
+            "val_loss", val_loss,
+            on_step=False, on_epoch=True, prog_bar=True
+        )

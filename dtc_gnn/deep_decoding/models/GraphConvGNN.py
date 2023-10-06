@@ -66,7 +66,8 @@ class GraphConvGNN(nn.Module):
 
     def forward(self, g=None, h=None, e=None, error=True):
         if not error:
-            return torch.Tensor([[0, 0]]), torch.Tensor([[0, 0]])
+            identity = torch.Tensor([[0, 0, 0, 0]])
+            return identity, identity
 
         # Nodes features projection
         h = self.n_projection(h)

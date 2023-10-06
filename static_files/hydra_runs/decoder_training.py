@@ -57,15 +57,7 @@ def main(config: DictConfig):
         default_root_dir=hydra_path
     )
 
-    lightning_trainer.fit(
-        model=gnn_model, datamodule=data_module)
-    val_metrics = lightning_trainer.validate(
-        model=gnn_model, dataloaders=data_module.val_dataloader())
-    test_metrics = lightning_trainer.test(
-        model=gnn_model, dataloaders=data_module.test_dataloader())
-
-    print(val_metrics)
-    print(test_metrics)
+    lightning_trainer.fit(model=gnn_model, datamodule=data_module)
 
 
 if __name__ == "__main__":
