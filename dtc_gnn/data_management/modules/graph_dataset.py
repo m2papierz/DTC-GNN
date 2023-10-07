@@ -4,6 +4,7 @@ import numpy as np
 
 from pathlib import Path
 from torch.utils.data import Dataset
+from dtc_gnn.data_management.label_encoder import LabelEncoder
 
 
 class GraphDataset(Dataset):
@@ -19,25 +20,16 @@ class GraphDataset(Dataset):
         self._x_data = data['graphs']
         self._y_data = data['labels']
 
-        self.hot_labels = self._labels_to_one_hots()
+        self._label_encoder = LabelEncoder()
 
     def __len__(self):
         return len(self._x_data)
 
-    @staticmethod
-    def _labels_to_one_hots():
-        labels = ["I", "X", "Z", "Y"]
-        one_hots = torch.eye(len(labels), len(labels), dtype=torch.float32)
-        return {
-            label: encoding for label, encoding in
-            zip(sorted(labels), [t for t in one_hots])
-        }
-
     def _labels_onehot_to_single_tensor(self, idx):
         return torch.cat(
             tensors=[
-                self.hot_labels[self._y_data[idx][0]],
-                self.hot_labels[self._y_data[idx][1]]
+                self._label_encoder.encode(self._y_data[idx][0]),
+                self._label_encoder.encode(self._y_data[idx][1])
             ], dim=0
         )
 
