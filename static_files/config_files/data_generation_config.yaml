@@ -3,23 +3,28 @@ defaults:
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
-data_dirs:
-  train: "data/train"
-  val: "data/val"
-
-error_model:
-  _target_: dtc_gnn.error_models.DepolarizingErrorModel
-
-graph_transform:
-  _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
-  edges_constraint: 5
-
-code_distances:
-  - 3
-  - 5
-  - 7
-  - 9
-
-n_samples: 250000
-split_ratio: 0.8
-error_prob: 0.115
+data_generator:
+  _target_: dtc_gnn.data_generation.generator.GraphDataGenerator
+  data_directories:
+    train: "data/train"
+    val: "data/val"
+  stabilizer_code:
+    _target_: hydra.utils.get_class
+    path: qecsim.models.toric.ToricCode
+  error_model:
+    _target_: dtc_gnn.error_models.DepolarizingErrorModel
+  graph_transform:
+    _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
+    edges_constraint: 5
+  n_samples: 250000
+  split_ratio: 0.8
+  code_distances:
+    - 3
+    - 5
+    - 7
+    - 9
+  error_probabilities:
+    - 0.015
+    - 0.055
+    - 0.085
+    - 0.115

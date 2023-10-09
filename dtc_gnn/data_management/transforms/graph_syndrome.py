@@ -7,8 +7,8 @@ from typing import List
 from itertools import combinations
 from qecsim.models.toric import ToricCode
 
-from dtc_gnn.data_management.graph_utils import GraphNode
-from dtc_gnn.data_management.graph_utils import GraphEdge
+from dtc_gnn.data_management.transforms.graph_utils import GraphNode
+from dtc_gnn.data_management.transforms.graph_utils import GraphEdge
 
 
 class GraphSyndromeTransform:
