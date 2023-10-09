@@ -3,7 +3,7 @@ import path_init
 
 from omegaconf import DictConfig
 from dtc_gnn.utlis import data_dirs_status
-from dtc_gnn.data_generation.generator import GraphDataGenerator
+from dtc_gnn.data_generation.graph_data_generator import GraphDataGenerator
 
 
 @hydra.main(
