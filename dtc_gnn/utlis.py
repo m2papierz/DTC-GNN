@@ -21,30 +21,32 @@ def data_dirs_status(dir_paths: List[Path]) -> bool:
     Returns:
         bool: True if to create or regenerate data, False if left as-is.
     """
-    for dir_path in dir_paths:
-        if dir_path.exists() and not is_directory_empty(dir_path):
-            user_input = ""
 
-            while user_input not in ["yes", "no", "y", "n"]:
-                user_input = input(
-                    f"The data is already generated. "
-                    "Do you want to regenerate its contents? (yes/no): "
-                ).strip().lower()
+    if dir_paths[0].exists() and not is_directory_empty(dir_paths[0]):
+        user_input = ""
 
-            if user_input.startswith("y"):
-                for f_path in dir_path.glob("*"):
+        while user_input not in ["yes", "no", "y", "n"]:
+            user_input = input(
+                f"The data is already generated. "
+                "Do you want to regenerate its contents? (yes/no): "
+            ).strip().lower()
+
+        if user_input.startswith("y"):
+            for path in dir_paths:
+                for f_path in path.glob("*"):
                     if f_path.is_file():
                         f_path.unlink()
                     elif f_path.is_dir():
                         rmtree(f_path)
-                print(f"Regenerating contents of '{dir_path}'...")
-                return True
-            print(f"Leaving the contents of '{dir_path}' as-is...")
-            return False
-        else:
+            print(f"Regenerating datasets...")
+            return True
+        print(f"Leaving datasets as-are...")
+        return False
+    else:
+        for dir_path in dir_paths:
             try:
                 dir_path.mkdir(exist_ok=True)
             except OSError as e:
                 print(f"Error creating directory '{dir_path}': {e}")
                 return False
-            return True
+        return True
