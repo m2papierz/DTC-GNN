@@ -28,14 +28,14 @@ class GNNLightningModule(pl.LightningModule):
         self._train_metrics = train_metrics
         self._val_metrics = val_metrics
 
-    def forward(self, graph, nodes, edges):
-        return self._gnn_model(graph, nodes, edges)
+    def forward(self, graph, nodes, edges, error=True):
+        return self._gnn_model(graph, nodes, edges, error)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self._learning_rate)
         scheduler = {
             'scheduler': ReduceLROnPlateau(
-                optimizer, mode='min', patience=self._reduce_lr, min_lr=1e-6
+                optimizer, mode='min', patience=self._reduce_lr, min_lr=1e-6, verbose=True
             ),
             'monitor': 'val_loss',
             'interval': 'epoch',
@@ -43,15 +43,9 @@ class GNNLightningModule(pl.LightningModule):
         }
         return [optimizer], [scheduler]
 
-    @staticmethod
-    def _unpack_labels(batch_labels):
-        labels_qubit_1 = batch_labels[:, [0, 1, 2, 3]]
-        labels_qubit_2 = batch_labels[:, [4, 5, 6, 7]]
-        return labels_qubit_1, labels_qubit_2
-
     def _shared_step(self, batch):
         x = batch[0]
-        y1, y2 = self._unpack_labels(batch[1])
+        y1, y2 = batch[1][:, [0, 1]], batch[1][:, [2, 3]]
         pred_q1, pred_q2 = self(x, x.ndata["feat"], x.edata["weight"])
 
         loss_q1 = self._loss_function(pred_q1, y1)

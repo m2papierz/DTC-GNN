@@ -3,8 +3,8 @@ import torch
 import numpy as np
 
 from pathlib import Path
+from qecsim.paulitools import pauli_to_bsf
 from torch.utils.data import Dataset
-from dtc_gnn.data_management.label_encoder import LabelEncoder
 
 
 class GraphDataset(Dataset):
@@ -20,20 +20,11 @@ class GraphDataset(Dataset):
         self._x_data = data['graphs']
         self._y_data = data['labels']
 
-        self._label_encoder = LabelEncoder()
-
     def __len__(self):
         return len(self._x_data)
 
-    def _labels_onehot_to_single_tensor(self, idx):
-        return torch.cat(
-            tensors=[
-                self._label_encoder.encode(self._y_data[idx][0]),
-                self._label_encoder.encode(self._y_data[idx][1])
-            ], dim=0
-        )
-
     def __getitem__(self, idx):
         x = self._x_data[idx]
-        y = self._labels_onehot_to_single_tensor(idx)
+        y = torch.tensor(
+            pauli_to_bsf(self._y_data[idx]), dtype=torch.float32)
         return x, y

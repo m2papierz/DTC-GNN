@@ -10,6 +10,9 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks import ModelCheckpoint
 
+from dtc_gnn.data_management.modules.graph_data_module import GraphDataModule
+from dtc_gnn.deep_decoding.lightning_module import GNNLightningModule
+
 torch.set_float32_matmul_precision('medium')
 
 
@@ -42,8 +45,8 @@ def get_callbacks(
 def main(config: DictConfig):
     hydra_path = Path(hydra.core.hydra_config.HydraConfig.get().runtime.output_dir)
 
-    data_module = hydra.utils.instantiate(config.data_module)
-    gnn_model = hydra.utils.instantiate(config.gnn_model)
+    data_module: GraphDataModule = hydra.utils.instantiate(config.data_module)
+    gnn_model: GNNLightningModule = hydra.utils.instantiate(config.gnn_model)
 
     trainer_callbacks = get_callbacks(
         callbacks_config=config.trainer.callbacks,

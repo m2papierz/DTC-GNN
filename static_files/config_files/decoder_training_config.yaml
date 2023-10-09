@@ -17,8 +17,8 @@ trainer:
   callbacks:
     monitor: val_loss
     mode: min
-    verbose: False
-    min_delta: 0.001
-    patience: 15
+    verbose: True
+    min_delta: 0.0001
+    patience: 20
     save_top_k: 1
     model_filename: best_model
