@@ -101,22 +101,21 @@ class GraphDataGenerator:
         file_path = directory / f"data_dist_ensemble"
         x_data_ensemble = np.concatenate(x_data_ensemble, axis=0)
         y_data_ensemble = np.concatenate(y_data_ensemble, axis=0)
-        print(x_data_ensemble.shape)
         np.savez(file_path, graphs=x_data_ensemble, labels=y_data_ensemble)
 
     def generate_training_data(self):
         data_indexes = list(range(self._n_samples))
 
-        # for code_dist in self._code_distances:
-        #     x_data, y_data = self._generate_single_code_data(code_dist)
-        #     train_idx, val_idx = random_split(
-        #         input_list=data_indexes, split_ratio=self._split_ratio)
-        #
-        #     print("Splitting and saving datasets...")
-        #     for k, dir_ in self.data_dirs.items():
-        #         split_idx = train_idx if k == "train" else val_idx
-        #         file_path = dir_ / f"data_dist_{code_dist}"
-        #         np.savez(file_path, graphs=x_data[split_idx], labels=y_data[split_idx])
+        for code_dist in self._code_distances:
+            x_data, y_data = self._generate_single_code_data(code_dist)
+            train_idx, val_idx = random_split(
+                input_list=data_indexes, split_ratio=self._split_ratio)
+
+            print("Splitting and saving datasets...")
+            for k, dir_ in self.data_dirs.items():
+                split_idx = train_idx if k == "train" else val_idx
+                file_path = dir_ / f"data_dist_{code_dist}"
+                np.savez(file_path, graphs=x_data[split_idx], labels=y_data[split_idx])
 
         print(f"Creating code distances ensemble datasets...")
         for k, dir_ in self.data_dirs.items():
