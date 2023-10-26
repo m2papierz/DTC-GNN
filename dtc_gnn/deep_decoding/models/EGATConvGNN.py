@@ -1,0 +1,87 @@
+import dgl
+import torch
+import torch.nn as nn
+import torch.nn.functional as fn
+
+from dgl.nn import EGATConv
+
+
+class PredictionLayer(nn.Module):
+    def __init__(self, in_dim: int, dropout_rate: float, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Linear prediction layers
+        self.prediction_projection = nn.Sequential(
+            nn.Linear(in_dim, in_dim // 4),
+            nn.Dropout(dropout_rate),
+            nn.LeakyReLU()
+        )
+
+        # Prediction for 1st qubit
+        self.prediction = nn.Sequential(
+            nn.Linear(in_dim // 4, 2),
+            nn.Sigmoid()
+        )
+
+    def forward(self, h):
+        h = self.prediction_projection(h)
+        return self.prediction(h)
+
+
+class EGATConvGNN(nn.Module):
+    def __init__(
+            self,
+            n_h_dim: int,
+            e_h_dim: int,
+            n_heads: int,
+            layers_num: int,
+            dropout_rate: float
+    ):
+        super(EGATConvGNN, self).__init__()
+
+        # Projection layers
+        self.n_projection = nn.Linear(in_features=3, out_features=n_h_dim // 2)
+
+        # Convolutional layers
+        self.conv_layers = nn.ModuleList([
+            EGATConv(n_h_dim // 2, 1, n_h_dim, e_h_dim, n_heads)])
+        for _ in range(layers_num):
+            self.conv_layers.append(
+                EGATConv(
+                    n_h_dim * n_heads, e_h_dim * n_heads, n_h_dim, e_h_dim, n_heads)
+            )
+        self.conv_layers.append(
+            EGATConv(
+                n_h_dim * n_heads, e_h_dim * n_heads, n_h_dim * n_heads,  e_h_dim * n_heads, 1)
+        )
+
+        # Dropout regularization
+        self.h_dropout = nn.Dropout(dropout_rate)
+
+        # Linear prediction layers
+        self.prediction = PredictionLayer(
+            in_dim=n_h_dim * n_heads, dropout_rate=dropout_rate)
+
+    def forward(self, g=None, h=None, e=None, error=True):
+        if not error:
+            return torch.Tensor([0, 0])
+
+        # Nodes features projection
+        h = self.n_projection(h)
+        h = self.h_dropout(h)
+        h = fn.leaky_relu(h)
+
+        # Graph convolution layers
+        bsh, bse = h.shape[0], e.shape[0]
+        for conv_layer in self.conv_layers:
+            h, e = conv_layer(g, h, e)
+            h = h.reshape(bsh, -1)
+            e = e.reshape(bse, -1)
+            h = self.h_dropout(h)
+            h = fn.leaky_relu(h)
+
+        # Node features mean-pooling
+        g.ndata['hm'] = h
+        h = dgl.mean_nodes(g, feat='hm')
+
+        return self.prediction(h)
