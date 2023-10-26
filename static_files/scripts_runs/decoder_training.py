@@ -32,8 +32,8 @@ def get_callbacks(
             monitor=callbacks_config.monitor,
             save_top_k=callbacks_config.save_top_k,
             mode=callbacks_config.mode,
-            filename=callbacks_config.model_filename,
-            dirpath=save_path / model_name)
+            filename=model_name,
+            dirpath=save_path)
     ]
 
 

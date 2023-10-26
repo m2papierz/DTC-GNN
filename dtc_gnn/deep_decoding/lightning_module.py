@@ -35,7 +35,8 @@ class GNNLightningModule(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self._learning_rate)
         scheduler = {
             'scheduler': ReduceLROnPlateau(
-                optimizer, mode='min', patience=self._reduce_lr, min_lr=1e-6, verbose=True
+                optimizer, mode='min', patience=self._reduce_lr,
+                factor=0.5, min_lr=1e-6, verbose=True
             ),
             'monitor': 'val_loss',
             'interval': 'epoch',
@@ -44,15 +45,9 @@ class GNNLightningModule(pl.LightningModule):
         return [optimizer], [scheduler]
 
     def _shared_step(self, batch):
-        x = batch[0]
-        y1, y2 = batch[1][:, [0, 1]], batch[1][:, [2, 3]]
-        pred_q1, pred_q2 = self(x, x.ndata["feat"], x.edata["weight"])
-
-        loss_q1 = self._loss_function(pred_q1, y1)
-        loss_q2 = self._loss_function(pred_q2, y2)
-        step_loss = (loss_q1 + loss_q2) / 2
-
-        return step_loss
+        x, y = batch[0], batch[1]
+        pred = self(x, x.ndata["feat"], x.edata["weight"])
+        return self._loss_function(pred, y)
 
     def training_step(self, batch, batch_idx):
         train_loss = self._shared_step(batch)

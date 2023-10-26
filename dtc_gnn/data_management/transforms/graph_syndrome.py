@@ -5,7 +5,7 @@ import scipy.sparse as sp
 
 from typing import List
 from itertools import combinations
-from qecsim.models.toric import ToricCode
+from qecsim.models.rotatedplanar import RotatedPlanarCode
 
 from dtc_gnn.data_management.transforms.graph_utils import GraphNode
 from dtc_gnn.data_management.transforms.graph_utils import GraphEdge
@@ -17,7 +17,7 @@ class GraphSyndromeTransform:
 
     def _syndrome_to_graph(
             self,
-            stab_code: ToricCode,
+            stab_code: RotatedPlanarCode,
             syndrome: List[int]
     ) -> None:
         """
@@ -28,7 +28,11 @@ class GraphSyndromeTransform:
         # Add nodes to the graph based on syndrome
         stab_indexes = stab_code.syndrome_to_plaquette_indices(syndrome)
         for i, indices in enumerate(stab_indexes):
-            node = GraphNode(indices=indices, code_dist=stab_code.n_k_d[-1])
+            node = GraphNode(
+                indices=indices,
+                code_dist=stab_code.n_k_d[-1],
+                is_x=stab_code.is_x_plaquette(indices)
+            )
             self._graph_s.add_node(i, pos=node.position, feat=node.features)
 
         # Create graph edges
@@ -69,7 +73,7 @@ class GraphSyndromeTransform:
 
     def __call__(
             self,
-            stab_code: ToricCode,
+            stab_code: RotatedPlanarCode,
             syndrome: List[int]
     ) -> dgl.DGLGraph:
         self._syndrome_to_graph(
