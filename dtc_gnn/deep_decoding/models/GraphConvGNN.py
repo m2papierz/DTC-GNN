@@ -18,22 +18,14 @@ class PredictionLayer(nn.Module):
         )
 
         # Prediction for 1st qubit
-        self.q1_head = nn.Sequential(
-            nn.Linear(in_dim // 2, 2),
-            nn.Sigmoid()
-        )
-
-        # Prediction for 2nd qubit
-        self.q2_head = nn.Sequential(
+        self.prediction = nn.Sequential(
             nn.Linear(in_dim // 2, 2),
             nn.Sigmoid()
         )
 
     def forward(self, h):
         h = self.prediction_projection(h)
-        q1 = self.q1_head(h)
-        q2 = self.q2_head(h)
-        return q1, q2
+        return self.prediction(h)
 
 
 class GraphConvGNN(nn.Module):
@@ -66,8 +58,7 @@ class GraphConvGNN(nn.Module):
 
     def forward(self, g=None, h=None, e=None, error=True):
         if not error:
-            identity = torch.Tensor([[0, 0]])
-            return identity, identity
+            return torch.Tensor([0, 0])
 
         # Nodes features projection
         h = self.n_projection(h)

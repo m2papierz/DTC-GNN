@@ -11,7 +11,7 @@ loss_function:
 
 learning_rate: 0.003
 
-reduce_lr_patience: 15
+reduce_lr_patience: 12
 
 train_metrics:
   - _target_: torchmetrics.classification.BinaryAccuracy
