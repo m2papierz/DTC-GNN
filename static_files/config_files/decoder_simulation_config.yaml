@@ -1,25 +1,26 @@
 defaults:
   - _self_
-  - gnn_model: graph_conv_gnn.yaml
+  - gnn_model: egat_conv_gnn.yaml
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
-gnn_model_path: outputs/2023-10-09/15-29-42/GNNLightningModule/best_model.ckpt
+gnn_model_path: outputs/2023-10-26/13-01-54/GNNLightningModule.ckpt
+reports_dir: reports
 
 simulator:
   _target_: dtc_gnn.simulation.decoding_simulator.Simulator
   stabilizer_code:
     _target_: hydra.utils.get_class
-    path: qecsim.models.toric.ToricCode
+    path: qecsim.models.rotatedplanar.RotatedPlanarCode
   error_model:
     _target_: dtc_gnn.error_models.DepolarizingErrorModel
   graph_transform:
     _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
     edges_constraint: 5
-  num_shots: 500
+  num_shots: 1500
   code_distances:
-    - 3
-    - 5
-    - 7
+    - 4
+    - 6
+    - 8
   max_error_prob: 0.12
-  prob_space_num: 10
+  prob_space_num: 12
