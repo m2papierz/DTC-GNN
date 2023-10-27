@@ -3,8 +3,12 @@ import numpy as np
 from dgl import DGLGraph
 from typing import List, Union
 from qecsim.paulitools import bsp
-from qecsim.models.toric import ToricMWPMDecoder
+
+from dtc_gnn.error_models import ErrorModel
 from dtc_gnn.simulation.decoders.base import DecoderBase
+
+from qecsim.models.rotatedplanar import RotatedPlanarCode
+from qecsim.models.rotatedplanar import RotatedPlanarSMWPMDecoder
 
 
 class DecoderMWPM(DecoderBase):
@@ -12,13 +16,20 @@ class DecoderMWPM(DecoderBase):
         super().__init__()
 
     def _init_decoder(self):
-        self._decoder = ToricMWPMDecoder()
+        self._decoder = RotatedPlanarSMWPMDecoder()
+
+    @property
+    def name(self):
+        return "MWPM"
 
     def _predict(
             self,
             syndrome: Union[List[int], DGLGraph],
-            code=None
+            code: RotatedPlanarCode = None,
+            error_model: ErrorModel = None
     ) -> np.ndarray:
-        physical_error_pred = self._decoder.decode(code, syndrome)
-        logical_error_pred = bsp(physical_error_pred, code.logicals.T)
+        physical_error_pred = self._decoder.decode(
+            code, syndrome, error_model)
+        logical_error_pred = bsp(
+            physical_error_pred, code.logicals.T)
         return logical_error_pred

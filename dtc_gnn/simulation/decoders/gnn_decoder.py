@@ -5,7 +5,10 @@ import pytorch_lightning as pl
 from pathlib import Path
 from dgl import DGLGraph
 from typing import List, Union
+
+from dtc_gnn.error_models import ErrorModel
 from dtc_gnn.simulation.decoders.base import DecoderBase
+from qecsim.models.rotatedplanar import RotatedPlanarCode
 
 
 class DecoderGNN(DecoderBase):
@@ -19,6 +22,10 @@ class DecoderGNN(DecoderBase):
         state_dict = model_dict['state_dict']
         self._decoder.load_state_dict(state_dict)
 
+    @property
+    def name(self):
+        return "GNN"
+
     @staticmethod
     def _prob_to_pred(
             input_tensor: torch.Tensor
@@ -30,7 +37,8 @@ class DecoderGNN(DecoderBase):
     def _predict(
             self,
             syndrome: Union[List[int], DGLGraph],
-            code=None
+            code: RotatedPlanarCode = None,
+            error_model: ErrorModel = None
     ) -> np.ndarray:
         if syndrome is not None:
             pred = self._decoder(
