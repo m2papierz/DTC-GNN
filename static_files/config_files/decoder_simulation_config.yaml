@@ -4,20 +4,20 @@ defaults:
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
-gnn_model_path: outputs/2023-10-26/13-01-54/GNNLightningModule.ckpt
+gnn_model_path: outputs/2023-11-22/20-27-01/GNNLightningModule.ckpt
 reports_dir: reports
 
 simulator:
   _target_: dtc_gnn.simulation.decoding_simulator.Simulator
   stabilizer_code:
     _target_: hydra.utils.get_class
-    path: qecsim.models.rotatedplanar.RotatedPlanarCode
+    path: qecsim.models.rotatedtoric.RotatedToricCode
   error_model:
     _target_: dtc_gnn.error_models.DepolarizingErrorModel
   graph_transform:
     _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
-    edges_constraint: 5
-  num_shots: 1500
+    edges_constraint: 10
+  num_shots: 1200
   code_distances:
     - 4
     - 6

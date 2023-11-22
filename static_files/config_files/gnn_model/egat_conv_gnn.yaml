@@ -3,7 +3,7 @@ _target_: dtc_gnn.deep_decoding.lightning_module.GNNLightningModule
 torch_module:
   _target_: dtc_gnn.deep_decoding.models.EGATConvGNN.EGATConvGNN
   n_h_dim: 64
-  e_h_dim: 4
+  e_h_dim: 8
   n_heads: 8
   layers_num: 1
   dropout_rate: 0.2
@@ -13,7 +13,7 @@ loss_function:
 
 learning_rate: 0.001
 
-reduce_lr_patience: 12
+reduce_lr_patience: 20
 
 train_metrics:
   - _target_: torchmetrics.classification.BinaryAccuracy

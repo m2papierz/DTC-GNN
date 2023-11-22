@@ -18,7 +18,7 @@ trainer:
     monitor: val_loss
     mode: min
     verbose: True
-    min_delta: 0.00001
-    patience: 15
+    min_delta: 0.000001
+    patience: 30
     save_top_k: 1
     model_filename: best_model
