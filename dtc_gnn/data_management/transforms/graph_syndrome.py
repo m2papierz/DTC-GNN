@@ -5,7 +5,7 @@ import scipy.sparse as sp
 
 from typing import List
 from itertools import combinations
-from qecsim.models.rotatedplanar import RotatedPlanarCode
+from qecsim.models.rotatedtoric import RotatedToricCode
 
 from dtc_gnn.data_management.transforms.graph_utils import GraphNode
 from dtc_gnn.data_management.transforms.graph_utils import GraphEdge
@@ -15,9 +15,31 @@ class GraphSyndromeTransform:
     def __init__(self, edges_constraint: int = 5):
         self._max_edges = edges_constraint
 
+    @staticmethod
+    def _neighbours_counts(nodes_data):
+        def calculate_distance(p_1, p_2):
+            return max(abs(p_1[0] - p_2[0]), abs(p_1[1] - p_2[1]))
+
+        n_counts_dict_x = {}
+        n_counts_dict_z = {}
+        for p1, p2 in combinations(nodes_data.keys(), 2):
+            err1_is_x, err2_is_x = nodes_data[p1], nodes_data[p2]
+
+            if calculate_distance(p1, p2) == 1:
+                if err1_is_x:
+                    n_counts_dict_x[p2] = n_counts_dict_x.get(p2, 0) + 1
+                else:
+                    n_counts_dict_z[p2] = n_counts_dict_z.get(p2, 0) + 1
+                if err2_is_x:
+                    n_counts_dict_x[p1] = n_counts_dict_x.get(p1, 0) + 1
+                else:
+                    n_counts_dict_z[p1] = n_counts_dict_z.get(p1, 0) + 1
+
+        return n_counts_dict_x, n_counts_dict_z
+
     def _syndrome_to_graph(
             self,
-            stab_code: RotatedPlanarCode,
+            stab_code: RotatedToricCode,
             syndrome: List[int]
     ) -> None:
         """
@@ -26,12 +48,18 @@ class GraphSyndromeTransform:
         self._graph_s = nx.Graph()
 
         # Add nodes to the graph based on syndrome
-        stab_indexes = stab_code.syndrome_to_plaquette_indices(syndrome)
-        for i, indices in enumerate(stab_indexes):
+        nodes_data = {
+            idx: stab_code.is_x_plaquette(idx)
+            for idx in stab_code.syndrome_to_plaquette_indices(syndrome)
+        }
+        n_counts_dict_x, n_counts_dict_z = self._neighbours_counts(nodes_data)
+        for i, (indices, is_x_plaquette) in enumerate(nodes_data.items()):
             node = GraphNode(
                 indices=indices,
                 code_dist=stab_code.n_k_d[-1],
-                is_x=stab_code.is_x_plaquette(indices)
+                is_x=is_x_plaquette,
+                n_counts_x=n_counts_dict_x.get(indices, 0) / len(nodes_data),
+                n_counts_z=n_counts_dict_z.get(indices, 0) / len(nodes_data)
             )
             self._graph_s.add_node(i, pos=node.position, feat=node.features)
 
@@ -73,7 +101,7 @@ class GraphSyndromeTransform:
 
     def __call__(
             self,
-            stab_code: RotatedPlanarCode,
+            stab_code: RotatedToricCode,
             syndrome: List[int]
     ) -> dgl.DGLGraph:
         self._syndrome_to_graph(
