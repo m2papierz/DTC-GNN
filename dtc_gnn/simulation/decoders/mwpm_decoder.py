@@ -7,8 +7,8 @@ from qecsim.paulitools import bsp
 from dtc_gnn.error_models import ErrorModel
 from dtc_gnn.simulation.decoders.base import DecoderBase
 
-from qecsim.models.rotatedplanar import RotatedPlanarCode
-from qecsim.models.rotatedplanar import RotatedPlanarSMWPMDecoder
+from qecsim.models.rotatedtoric import RotatedToricCode
+from qecsim.models.rotatedtoric import RotatedToricSMWPMDecoder
 
 
 class DecoderMWPM(DecoderBase):
@@ -16,7 +16,7 @@ class DecoderMWPM(DecoderBase):
         super().__init__()
 
     def _init_decoder(self):
-        self._decoder = RotatedPlanarSMWPMDecoder()
+        self._decoder = RotatedToricSMWPMDecoder()
 
     @property
     def name(self):
@@ -25,7 +25,7 @@ class DecoderMWPM(DecoderBase):
     def _predict(
             self,
             syndrome: Union[List[int], DGLGraph],
-            code: RotatedPlanarCode = None,
+            code: RotatedToricCode = None,
             error_model: ErrorModel = None
     ) -> np.ndarray:
         physical_error_pred = self._decoder.decode(

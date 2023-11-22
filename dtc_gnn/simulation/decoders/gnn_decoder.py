@@ -8,7 +8,7 @@ from typing import List, Union
 
 from dtc_gnn.error_models import ErrorModel
 from dtc_gnn.simulation.decoders.base import DecoderBase
-from qecsim.models.rotatedplanar import RotatedPlanarCode
+from qecsim.models.rotatedtoric import RotatedToricCode
 
 
 class DecoderGNN(DecoderBase):
@@ -37,13 +37,14 @@ class DecoderGNN(DecoderBase):
     def _predict(
             self,
             syndrome: Union[List[int], DGLGraph],
-            code: RotatedPlanarCode = None,
+            code: RotatedToricCode = None,
             error_model: ErrorModel = None
     ) -> np.ndarray:
         if syndrome is not None:
-            pred = self._decoder(
+            pred1, pred2 = self._decoder(
                 syndrome, syndrome.ndata["feat"], syndrome.edata["weight"])
-            pred = self._prob_to_pred(pred)
+            pred = self._prob_to_pred(torch.cat([pred1, pred2], dim=1))
         else:
-            pred = self._decoder(None, None, None, False)
+            pred1, pred2 = self._decoder(None, None, None, False)
+            pred = self._prob_to_pred(torch.cat([pred1, pred2], dim=1))
         return pred.detach().numpy()

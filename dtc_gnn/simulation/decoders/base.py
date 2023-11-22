@@ -3,7 +3,7 @@ from typing import List, Union
 from abc import abstractmethod
 
 from dtc_gnn.error_models import ErrorModel
-from qecsim.models.rotatedplanar import RotatedPlanarCode
+from qecsim.models.rotatedtoric import RotatedToricCode
 
 
 class DecoderBase:
@@ -18,7 +18,7 @@ class DecoderBase:
     def _predict(
             self,
             syndrome: Union[List[int], DGLGraph],
-            code: RotatedPlanarCode = None,
+            code: RotatedToricCode = None,
             error_model: ErrorModel = None
     ):
         pass
@@ -26,7 +26,7 @@ class DecoderBase:
     def decode(
             self,
             syndrome: Union[List[int], DGLGraph],
-            code: RotatedPlanarCode = None,
+            code: RotatedToricCode = None,
             error_model: ErrorModel = None
     ):
         return self._predict(syndrome, code, error_model)

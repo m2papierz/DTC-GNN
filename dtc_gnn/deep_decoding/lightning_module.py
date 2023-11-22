@@ -44,10 +44,22 @@ class GNNLightningModule(pl.LightningModule):
         }
         return [optimizer], [scheduler]
 
+    @staticmethod
+    def _unpack_labels(batch_labels):
+        labels_qubit_1 = batch_labels[:, [0, 1]]
+        labels_qubit_2 = batch_labels[:, [2, 3]]
+        return labels_qubit_1, labels_qubit_2
+
     def _shared_step(self, batch):
-        x, y = batch[0], batch[1]
-        pred = self(x, x.ndata["feat"], x.edata["weight"])
-        return self._loss_function(pred, y)
+        x = batch[0]
+        y1, y2 = self._unpack_labels(batch[1])
+        pred_q1, pred_q2 = self(x, x.ndata["feat"], x.edata["weight"])
+
+        loss_q1 = self._loss_function(pred_q1, y1)
+        loss_q2 = self._loss_function(pred_q2, y2)
+        loss = (loss_q1 + loss_q2) / 2
+
+        return loss
 
     def training_step(self, batch, batch_idx):
         train_loss = self._shared_step(batch)

@@ -2,7 +2,7 @@ import sys
 import glob
 import random
 import numpy as np
-import qecsim.models.rotatedplanar
+import qecsim.models.rotatedtoric
 import qecsim.paulitools as pt
 
 from tqdm import trange
@@ -32,7 +32,7 @@ class GraphDataGenerator:
     def __init__(
             self,
             data_directories: Dict[str, str],
-            stabilizer_code: Type[qecsim.models.rotatedplanar.RotatedPlanarCode],
+            stabilizer_code: Type[qecsim.models.rotatedtoric.RotatedToricCode],
             error_model: any,
             graph_transform: any,
             n_samples: int,

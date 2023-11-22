@@ -1,5 +1,5 @@
 import numpy as np
-import qecsim.models.rotatedplanar
+import qecsim.models.rotatedtoric
 import qecsim.paulitools as pt
 
 from typing import Union, List, Type
@@ -12,7 +12,7 @@ from dtc_gnn.error_models import ErrorModel
 class Simulator:
     def __init__(
             self,
-            stabilizer_code: Type[qecsim.models.rotatedplanar.RotatedPlanarCode],
+            stabilizer_code: Type[qecsim.models.rotatedtoric.RotatedToricCode],
             error_model: ErrorModel,
             graph_transform: GraphSyndromeTransform,
             num_shots: int,
