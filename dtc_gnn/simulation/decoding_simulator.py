@@ -1,7 +1,10 @@
+import sys
+
 import numpy as np
 import qecsim.models.rotatedtoric
 import qecsim.paulitools as pt
 
+from tqdm import tqdm
 from typing import Union, List, Type
 from dtc_gnn.simulation.decoders.mwpm_decoder import DecoderMWPM
 from dtc_gnn.simulation.decoders.gnn_decoder import DecoderGNN
@@ -46,18 +49,20 @@ class Simulator:
     def _failures_via_physical_frame_changes(self, decoder, code_dist, error_prob):
         num_errors = 0
         stab_code = self._stab_code(rows=code_dist, columns=code_dist)
-        errors_generator = self._errors_generator(stab_code, error_prob)
-        for graph, syndrome, log_error in errors_generator:
+        generator = self._errors_generator(stab_code, error_prob)
+
+        desc = f'Gathering errors data for L={code_dist}, p={round(error_prob, 3)}'
+        for g, s, l_e in tqdm(generator, total=self._num_shots, desc=desc, file=sys.stdout):
 
             if isinstance(decoder, DecoderMWPM):
                 log_pred = decoder.decode(
-                    syndrome=syndrome,
+                    syndrome=s,
                     code=stab_code,
                     error_model=self._error_model)
             else:
-                log_pred = decoder.decode(syndrome=graph)
+                log_pred = decoder.decode(syndrome=g)
 
-            if not np.array_equal(log_pred, log_error):
+            if not np.array_equal(log_pred, l_e):
                 num_errors += 1
 
         return num_errors
