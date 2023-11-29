@@ -17,7 +17,7 @@ data_generator:
     _target_: dtc_gnn.error_models.DepolarizingErrorModel
   graph_transform:
     _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
-    edges_constraint: 10
+    edges_constraint: 8
   n_samples: 250000
   split_ratio: 0.8
   code_distances:

@@ -4,7 +4,7 @@ defaults:
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
 
-gnn_model_path: outputs/2023-11-22/20-27-01/GNNLightningModule.ckpt
+gnn_model_path: outputs/yyyy-mm-dd/hh-mm-dd/GNNLightningModule.ckpt
 reports_dir: reports
 
 simulator:
@@ -16,11 +16,11 @@ simulator:
     _target_: dtc_gnn.error_models.DepolarizingErrorModel
   graph_transform:
     _target_: dtc_gnn.data_management.transforms.graph_syndrome.GraphSyndromeTransform
-    edges_constraint: 10
+    edges_constraint: 8
   num_shots: 1200
   code_distances:
     - 4
     - 6
     - 8
-  max_error_prob: 0.12
-  prob_space_num: 12
+  max_error_prob: 0.35
+  prob_space_num: 10

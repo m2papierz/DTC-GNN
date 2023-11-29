@@ -81,6 +81,7 @@ def main(config: DictConfig):
     # Collect results fo decoding simulation
     decoding_results = {}
     for decoder in [gnn_decoder, mwpm_decoder]:
+        print(f"Simulating of {decoder.name} decoder...")
         decoding_results.update(
             {decoder.name: simulator.run_simulation(decoder=decoder)}
         )
