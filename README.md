@@ -54,7 +54,3 @@ Simulation configuration: `static_files/config_files/decoder_simulation_config.y
 Decoder simulation run: 
 - default parameters: `python static_files/hydra_runs/decoder_simulation.py`
 - override example: `python static_files/hydra_runs/decoder_simulation.py ++num_shots=2000`
-
-An example of GNN performance:
-
-![plot](./results_plot.png)
